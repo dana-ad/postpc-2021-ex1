@@ -1,25 +1,16 @@
 package android.exercise.mini.interactions;
-
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
-
-import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class EditTitleActivity extends AppCompatActivity {
 
-  // TODO:
-  //  you can add fields to this class. those fields will be accessibly inside any method
-  //  (like `onCreate()` and `onBackPressed()` methods)
-  // for any field, make sure to set it's initial value. You CAN'T write a custom constructor
-  // for example, you can add this field:
-  // `private boolean isEditing = false;`
-  // in onCreate() set `this.isEditing` to `true` once the user starts editing, set to `false` once done editing
-  // in onBackPressed() check `if(this.isEditing)` to understand what to do
+  private boolean isEditing = false;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -40,8 +31,18 @@ public class EditTitleActivity extends AppCompatActivity {
     editTextTitle.setText("Page title here");
     editTextTitle.setVisibility(View.GONE);
 
+
     // handle clicks on "start edit"
     fabStartEdit.setOnClickListener(v -> {
+              this.isEditing = true;
+              fabStartEdit.setVisibility(View.GONE);
+              fabStartEdit.animate().alpha(0f);
+              fabEditDone.setVisibility(View.VISIBLE);
+              fabEditDone.animate().alpha(1f);
+              textViewTitle.setVisibility(View.GONE);
+              editTextTitle.setVisibility(View.VISIBLE);
+              editTextTitle.setText(textViewTitle.getText());
+      });
       /*
       TODO:
       1. animate out the "start edit" FAB
@@ -54,10 +55,25 @@ public class EditTitleActivity extends AppCompatActivity {
 
       to complete (1.) & (2.), start by just changing visibility. only add animations after everything else is ready
        */
-    });
 
     // handle clicks on "done edit"
     fabEditDone.setOnClickListener(v -> {
+      this.isEditing = false;
+      fabEditDone.setVisibility(View.GONE);
+      fabEditDone.animate().alpha(0f);
+      fabStartEdit.setVisibility(View.VISIBLE);
+      fabStartEdit.animate().alpha(1f);
+      textViewTitle.setText(editTextTitle.getText());
+      textViewTitle.setVisibility(View.VISIBLE);
+      editTextTitle.setVisibility(View.GONE);
+      try {
+        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(textViewTitle.getWindowToken(), 0);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+
+
       /*
       TODO:
       1. animate out the "done edit" FAB
@@ -74,6 +90,24 @@ public class EditTitleActivity extends AppCompatActivity {
 
   @Override
   public void onBackPressed() {
+    EditText editTextTitle = findViewById(R.id.editTextPageTitle);
+    TextView textViewTitle = findViewById(R.id.textViewPageTitle);
+    FloatingActionButton fabStartEdit = findViewById(R.id.fab_start_edit);
+    FloatingActionButton fabEditDone = findViewById(R.id.fab_edit_done);
+    if (this.isEditing) {
+      editTextTitle.setVisibility(View.GONE);
+      editTextTitle.setText("Page title here");
+      textViewTitle.setText("Page title here");
+      textViewTitle.setVisibility(View.VISIBLE);
+      fabEditDone.setVisibility(View.GONE);
+      fabEditDone.animate().alpha(0f);
+      fabStartEdit.setVisibility(View.VISIBLE);
+      fabStartEdit.animate().alpha(1f);
+    }
+    else {
+      super.onBackPressed();
+    }
+
     // BACK button was clicked
     /*
     TODO:
